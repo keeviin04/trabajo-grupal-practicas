@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planificación — Proyecto Horario UF3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sb:#111827;--sb2:#1e2a3f;--sbt:#6b7fa3;--sa:#5482f4;--sa-bg:rgba(84,130,244,.14);
+  --bg:#f2f4fb;--card:#fff;--bdr:#e4e8f4;
+  --t1:#0e1a2e;--t2:#485166;--t3:#8a96b0;
+  --p0b:#ede9fe;--p0t:#5b21b6;--p0s:#7c3aed;
+  --p1b:#d1fae5;--p1t:#065f46;--p1s:#10b981;
+  --p2b:#fef3c7;--p2t:#92400e;--p2s:#f59e0b;
+  --p3b:#dbeafe;--p3t:#1e40af;--p3s:#3b82f6;
+  --p4b:#ffedd5;--p4t:#9a3412;--p4s:#f97316;
+  --p5b:#dcfce7;--p5t:#14532d;--p5s:#22c55e;
+  --m0:#6366f1;--m0b:rgba(99,102,241,.1);
+  --m1:#0ea5e9;--m1b:rgba(14,165,233,.1);
+  --m2:#10b981;--m2b:rgba(16,185,129,.1);
+  --m3:#f59e0b;--m3b:rgba(245,158,11,.1);
+}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;display:flex;font-size:14px;line-height:1.5}
+.sidebar{width:255px;min-width:255px;background:var(--sb);height:100vh;position:sticky;top:0;display:flex;flex-direction:column;overflow:hidden}
+.sb-head{padding:22px 18px 18px;border-bottom:1px solid var(--sb2)}
+.sb-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--sa);background:var(--sa-bg);padding:3px 8px;border-radius:20px;display:inline-block;margin-bottom:10px}
+.sb-title{font-size:15px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:4px}
+.sb-sub{font-size:11px;color:var(--sbt)}
+.sb-scroll{flex:1;overflow-y:auto;padding:14px 10px}
+.sb-scroll::-webkit-scrollbar{width:3px}
+.sb-scroll::-webkit-scrollbar-thumb{background:var(--sb2);border-radius:2px}
+.sec-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--sbt);padding:0 8px;margin:0 0 5px}
+.week-sep{margin:12px 0 10px}
+.day-btn{display:flex;align-items:center;gap:9px;width:100%;padding:7px 9px;background:transparent;border:none;border-radius:8px;cursor:pointer;color:var(--sbt);text-align:left;transition:.15s;margin-bottom:1px;font-family:inherit}
+.day-btn:hover{background:rgba(255,255,255,.06);color:#e0e6f5}
+.day-btn.active{background:var(--sa-bg);color:var(--sa)}
+.dn{width:22px;height:22px;border-radius:6px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;transition:.15s}
+.day-btn.active .dn{background:var(--sa);color:#fff}
+.di{flex:1;min-width:0}
+.di-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.di-date{font-size:10px;opacity:.65;margin-top:1px}
+.hoy-badge{font-size:9px;font-weight:800;background:#5482f4;color:#fff;padding:1px 6px;border-radius:4px;flex-shrink:0;letter-spacing:.03em}
+.phase-pip{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.sb-members{border-top:1px solid var(--sb2);padding:12px 10px 14px}
+.mf-btn{display:flex;align-items:center;gap:9px;width:100%;padding:7px 9px;background:transparent;border:none;border-radius:8px;cursor:pointer;color:var(--sbt);text-align:left;font-family:inherit;font-size:12px;font-weight:500;transition:.15s;margin-bottom:1px}
+.mf-btn:hover{background:rgba(255,255,255,.06);color:#e0e6f5}
+.mf-btn.active{background:rgba(255,255,255,.07);color:#fff}
+.mf-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.main{flex:1;padding:32px 36px;overflow-y:auto;min-width:0}
+.timeline{display:flex;gap:3px;margin-bottom:28px;align-items:flex-end;height:20px}
+.tl-seg{flex:1;border-radius:4px;cursor:pointer;transition:.15s}
+.tl-seg:hover{filter:brightness(1.15)}
+.tl-seg.cur{outline:3px solid rgba(255,255,255,.7);outline-offset:-2px}
+.day-head{margin-bottom:18px}
+.phase-tag{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;margin-bottom:12px}
+.day-title{font-size:28px;font-weight:800;line-height:1.2;color:var(--t1)}
+.day-meta{font-size:13px;color:var(--t3);margin-top:6px}
+.day-intro{font-size:13.5px;color:var(--t2);line-height:1.75;margin:18px 0 24px;padding:16px 20px;background:var(--card);border-radius:12px;border-left:4px solid;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+.mgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.mcard{background:var(--card);border-radius:16px;border:1px solid var(--bdr);overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.05)}
+.mc-head{padding:15px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--bdr)}
+.mc-av{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.mc-name{font-size:14px;font-weight:700}
+.mc-role{font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4}
+.mc-body{padding:16px 18px}
+.task-list{list-style:none}
+.task-item{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--bdr)}
+.task-item:last-child{border-bottom:none}
+.t-ico{width:16px;height:16px;border-radius:50%;border:2px solid;flex-shrink:0;margin-top:2px}
+.t-txt{font-size:12.5px;color:var(--t2);line-height:1.65}
+.t-txt strong{font-weight:600;color:var(--t1)}
+.deliv{margin-top:14px;padding:11px 15px;border-radius:10px;background:var(--bg)}
+.del-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.del-txt{font-size:12px;color:var(--t2);line-height:1.6}
+.mv-head{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+.mv-av{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;flex-shrink:0}
+.mv-name{font-size:27px;font-weight:800;line-height:1.2}
+.mv-sub{font-size:13px;color:var(--t3);margin-top:4px}
+.day-row{background:var(--card);border-radius:14px;border:1px solid var(--bdr);overflow:hidden;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.dr-head{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;transition:.15s;user-select:none}
+.dr-head:hover{background:var(--bg)}
+.dr-dn{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.dr-info{flex:1}
+.dr-title{font-size:13px;font-weight:600}
+.dr-date{font-size:11px;color:var(--t3);margin-top:1px}
+.dr-ph{margin-left:auto;flex-shrink:0}
+.dr-arrow{width:18px;height:18px;color:var(--t3);flex-shrink:0;transition:transform .2s}
+.dr-arrow.open{transform:rotate(180deg)}
+.dr-body{padding:0 16px 0 58px;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease}
+.dr-body.open{max-height:1200px;padding:0 16px 16px 58px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.fade{animation:fadeIn .2s ease}
+.print-btn{position:fixed;bottom:22px;right:22px;background:var(--sa);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(84,130,244,.4);transition:.15s;z-index:100}
+.print-btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(84,130,244,.5)}
+@media(max-width:860px){.mgrid{grid-template-columns:1fr}}
+@media(max-width:640px){body{flex-direction:column}.sidebar{width:100%;min-width:unset;height:auto;position:static}.main{padding:20px 16px}}
+@media print{.sidebar,.print-btn{display:none}.main{padding:0}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sb-head">
+    <div class="sb-badge">UF3 · Mayo 2026</div>
+    <div class="sb-title">Proyecto Horario de Departamento</div>
+    <div class="sb-sub">10 días · 4 miembros · UML + Prototipo</div>
+  </div>
+  <div class="sb-scroll">
+    <div class="sec-lbl">Semana 1 — 11 al 15 de mayo</div>
+    <div id="nav-w1"></div>
+    <div class="week-sep"><div class="sec-lbl">Semana 2 — 18 al 22 de mayo</div></div>
+    <div id="nav-w2"></div>
+  </div>
+  <div class="sb-members">
+    <div class="sec-lbl" style="margin-bottom:8px">Ver por miembro</div>
+    <div id="mfilter"></div>
+  </div>
+</aside>
+<main class="main" id="main"></main>
+<button class="print-btn" onclick="window.print()">⬇ Imprimir / Guardar PDF</button>
+<script>
+var PH=[
+  {l:'Análisis',b:'var(--p0b)',t:'var(--p0t)',s:'#7c3aed',d:[1,2]},
+  {l:'Casos de uso + Clases',b:'var(--p1b)',t:'var(--p1t)',s:'#10b981',d:[3,4]},
+  {l:'Revisión Semana 1',b:'var(--p2b)',t:'var(--p2t)',s:'#f59e0b',d:[5]},
+  {l:'Secuencia + Flujo',b:'var(--p3b)',t:'var(--p3t)',s:'#3b82f6',d:[6,7]},
+  {l:'Prototipo de pantallas',b:'var(--p4b)',t:'var(--p4t)',s:'#f97316',d:[8]},
+  {l:'Revisión + Entrega',b:'var(--p5b)',t:'var(--p5t)',s:'#22c55e',d:[9,10]},
+];
+var phmap={};
+PH.forEach(function(p){p.d.forEach(function(n){phmap[n]=p;});});
+var M=[
+  {id:'pm',lbl:'PM',name:'PM (tú)',role:'Jefe de Proyecto — Coordinación, documentación y feedback',c:'var(--m0)',bg:'var(--m0b)',hex:'#6366f1'},
+  {id:'a',lbl:'A',name:'Miembro A',role:'Actores, casos de uso y diagramas de secuencia',c:'var(--m1)',bg:'var(--m1b)',hex:'#0ea5e9'},
+  {id:'b',lbl:'B',name:'Miembro B',role:'Entidades, diagrama de clases y diagrama de flujo',c:'var(--m2)',bg:'var(--m2b)',hex:'#10b981'},
+  {id:'c',lbl:'C',name:'Miembro C',role:'Descripciones de CU, coherencia entre diagramas y prototipo',c:'var(--m3)',bg:'var(--m3b)',hex:'#f59e0b'},
+];
+var DAYS=[
+{n:1,date:'Lunes, 11 de mayo',short:'Lun 11/05',hoy:true,title:'Kickoff y planificación',
+intro:'Primer día del proyecto. El objetivo es que todo el equipo comprenda exactamente qué hay que entregar, cuándo y quién es responsable de qué. Un kickoff bien ejecutado evita malentendidos durante toda la duración del proyecto.',
+members:[
+{tasks:['<strong>Presentar la planificación completa al equipo:</strong> explicar el documento de requisitos, los entregables obligatorios (4 diagramas UML + prototipo de 6 pantallas), las fechas clave de cada fase y el rol de cada miembro.','<strong>Repartir formalmente las tareas de la semana 1:</strong> A trabajará en actores y casos de uso, B en entidades y clases, C en descripciones funcionales y pantallas. Esto debe quedar escrito y claro para todos.','<strong>Redactar el acta de kickoff</strong> con la plantilla de documentación disponible: fecha, asistentes, decisiones tomadas, tareas asignadas a cada miembro y próximos pasos inmediatos del proyecto.','<strong>Enviar el primer comunicado a los jefes:</strong> un informe breve confirmando el inicio del proyecto, los miembros del equipo y la planificación general acordada para las dos semanas.','<strong>Verificar que todo el equipo tiene acceso a las herramientas necesarias:</strong> draw.io o Lucidchart para los diagramas UML, Figma u otra herramienta para los mockups, y la carpeta compartida para los documentos.','<strong>Resolver las dudas iniciales del equipo</strong> sobre el enunciado. Si hay puntos ambiguos que nadie puede resolver, anotarlos para preguntar al profesor al día siguiente.'],deliverable:'Acta de kickoff redactada y firmada. Primer informe enviado a los jefes. Tareas de la semana 1 asignadas y confirmadas por escrito.'},
+{tasks:['<strong>Leer el documento de requisitos completo al menos dos veces</strong> antes de hacer ningún análisis. Presta atención especial a los "Requisitos funcionales" y los "Datos mínimos".','<strong>Identificar todos los actores del sistema:</strong> ¿Quién interactúa con la aplicación? Piensa en el administrador del departamento (quien gestiona el horario), si los profesores pueden consultar su propio horario, y si el sistema actúa de forma autónoma en algún proceso.','<strong>Para cada actor identificado, describir:</strong> nombre del actor, descripción de su rol en el sistema, y qué requisitos funcionales del enunciado le corresponden a ese actor.','<strong>Hacer una lista preliminar de todos los casos de uso posibles</strong> del sistema, más allá de los 4 obligatorios. Esto te dará una visión global que te ayudará a construir el diagrama con más contexto mañana.','<strong>Anotar todas las dudas</strong> que surjan en un documento compartido para resolverlas con el equipo o con el profesor.'],deliverable:'Documento con: lista de actores (nombre + descripción de rol) y lista preliminar de casos de uso identificados.'},
+{tasks:['<strong>Leer el documento de requisitos con foco en los datos y entidades</strong> que maneja el sistema. Fíjate especialmente en la sección "Datos mínimos" del enunciado.','<strong>Identificar y confirmar las 5 entidades obligatorias:</strong> Profesor, Horario, FranjaHoraria, Aula, Asignatura. Asegúrate de entender qué representa cada una en el contexto real del problema.','<strong>Para cada entidad, anotar todos sus atributos posibles con tipo de dato:</strong> Profesor (nombre: String, apellidos: String, email: String), FranjaHoraria (dia: Enum, horaInicio: LocalTime, horaFin: LocalTime, observaciones: String), Aula (codigo: String, capacidad: Integer), etc.','<strong>Identificar las relaciones entre entidades:</strong> ¿Un Horario contiene múltiples FranjasHorarias? ¿Una FranjaHoraria tiene exactamente un Profesor y un Aula? Anota estas relaciones con su multiplicidad tentativa.','<strong>Preparar el análisis en un documento limpio</strong> para compartirlo con el equipo mañana y usarlo como base del diagrama de clases.'],deliverable:'Documento con las 5 entidades, sus atributos con tipos de dato, y las relaciones identificadas entre ellas.'},
+{tasks:['<strong>Leer el documento de requisitos con foco en funcionalidades y experiencia de usuario</strong> para entender qué debe hacer la aplicación desde el punto de vista del usuario.','<strong>Listar las 6 pantallas del prototipo mínimo exigido:</strong> Login, Panel principal, Vista semanal, Vista por profesor, Alta de asignación y Aviso de solapamiento.','<strong>Para cada pantalla, describir en detalle:</strong> (1) propósito de la pantalla, (2) qué datos del sistema muestra, (3) qué acciones puede realizar el usuario, (4) a qué otras pantallas da acceso.','<strong>Relacionar cada pantalla con los requisitos funcionales del enunciado</strong> que cubre (Vista semanal → Consultar horario semanal; Alta asignación → Asignar profesor a día/hora/aula + Detectar solapamientos, etc.).','<strong>Verificar que todos los datos mínimos</strong> (Profesor, Día, Hora inicio, Hora fin, Asignatura/tarea, Aula, Observaciones) aparecen en alguna pantalla del prototipo.'],deliverable:'Documento con descripción detallada de las 6 pantallas y su relación con los requisitos funcionales del enunciado.'},
+]},
+{n:2,date:'Martes, 12 de mayo',short:'Mar 12/05',hoy:false,title:'Análisis de requisitos',
+intro:'Hoy se profundiza en el análisis iniciado ayer. Cada miembro trabaja sobre su área de especialidad para tener un conocimiento sólido del sistema antes de empezar a dibujar diagramas. Es fundamental que los análisis de A, B y C sean coherentes entre sí.',
+members:[
+{tasks:['<strong>Supervisar el trabajo de análisis de cada miembro</strong> durante el día y resolver cualquier bloqueo o duda que surja.','<strong>Revisar los documentos producidos por cada miembro</strong> y verificar que son coherentes: ¿los actores de A encajan con las funcionalidades que describe C? ¿los atributos de B cubren todos los datos mínimos del enunciado?','<strong>Documentar el análisis de requisitos con la plantilla disponible:</strong> redactar un resumen del sistema, sus actores, funcionalidades principales y los datos que maneja. Este documento formará parte de la entrega final.','<strong>Preparar y enviar el primer informe de avance a los jefes:</strong> estado actual (análisis en curso/completado), planificación confirmada para la semana y cualquier riesgo o duda detectada.','<strong>Consultar con el profesor</strong> cualquier duda del enunciado que el equipo no haya podido resolver por sí mismo.'],deliverable:'Documento de análisis de requisitos redactado. Primer informe de avance enviado a los jefes.'},
+{tasks:['<strong>Definir formalmente cada actor identificado ayer</strong> con la siguiente estructura: nombre, descripción de su rol en el sistema, acciones que puede realizar, y qué información ve o modifica.','<strong>Completar y refinar la lista de casos de uso</strong> asegurándote de que los 4 obligatorios están presentes: Crear horario, Consultar horario, Modificar asignación y Detectar solapamiento.','<strong>Para cada caso de uso, anotar:</strong> qué actor lo ejecuta, cuál es el objetivo del caso de uso, y si tiene relaciones con otros casos (¿Crear horario incluye Detectar solapamiento?).','<strong>Identificar si hay casos de uso que se pueden agrupar</strong> (Consultar por profesor y Consultar por aula pueden ser variantes del mismo caso de uso con parámetros distintos).','<strong>Preparar un esquema rápido en papel</strong> de cómo quedaría el diagrama de casos de uso para mañana poder pasarlo directamente a digital sin perder tiempo.'],deliverable:'Lista formal de actores con descripción. Lista de casos de uso con actor asignado y relaciones identificadas. Borrador esquemático del diagrama.'},
+{tasks:['<strong>Confirmar y completar los atributos de las 5 clases obligatorias</strong> asegurándote de que cubren todos los datos mínimos del enunciado: Profesor (nombre, apellidos, email, departamento), FranjaHoraria (dia, horaInicio, horaFin, asignatura, aula, observaciones), etc.','<strong>Definir los métodos principales de cada clase</strong> según las operaciones del sistema: Horario debería tener addFranja(), removeFranja(), consultarPorProfesor(), consultarPorAula(), detectarSolapamiento(), exportar(). Piensa en qué operaciones necesita el sistema sobre cada clase.','<strong>Definir las relaciones entre clases con multiplicidades:</strong> Horario 1---* FranjaHoraria (un horario tiene cero o muchas franjas), FranjaHoraria *---1 Profesor (una franja tiene exactamente un profesor), FranjaHoraria *---1 Aula, FranjaHoraria *---1 Asignatura.','<strong>Preparar un borrador del diagrama de clases en papel</strong> con las 5 clases, sus atributos, métodos y relaciones. Será la guía para mañana cuando se pase a digital.'],deliverable:'Documento con las 5 clases, atributos con tipos de dato, métodos principales y relaciones con multiplicidades. Borrador en papel del diagrama.'},
+{tasks:['<strong>Completar el análisis de pantallas:</strong> para cada una de las 6 pantallas, escribir una descripción más detallada de los elementos que debe tener (campos, botones, tablas, menús, filtros).','<strong>Crear el mapa de navegación del prototipo:</strong> un esquema simple que muestre cómo se navega entre pantallas (Login → Panel principal → Vista semanal / Vista por profesor / Alta asignación, etc.).','<strong>Para el formulario de Alta de asignación, detallar todos los campos:</strong> selector de Profesor (dropdown o buscador), selector de Día (Lunes-Viernes), campos de Hora inicio y Hora fin, selector de Asignatura, selector de Aula y campo de Observaciones (opcional).','<strong>Para el Aviso de solapamiento, describir exactamente qué información debe mostrar</strong> (¿qué franjas colisionan? ¿qué profesor o aula está ocupado?) y qué opciones da al usuario (cancelar o forzar la asignación).'],deliverable:'Descripción detallada de los elementos de las 6 pantallas. Mapa de navegación del prototipo.'},
+]},
+{n:3,date:'Miércoles, 13 de mayo',short:'Mié 13/05',hoy:false,title:'Diagrama de casos de uso',
+intro:'Primer día de producción de diagramas UML. El equipo empieza a plasmar en diagramas todo lo analizado. Es fundamental que A y B trabajen en paralelo y se comuniquen para que sus diagramas sean coherentes desde el principio.',
+members:[
+{tasks:['<strong>Supervisar el trabajo de A y B durante el día.</strong> A media jornada, verificar que los dos diagramas en construcción son coherentes: ¿los actores del diagrama de CU de A coinciden con lo que B entiende sobre las clases?','<strong>Resolver con el profesor las dudas técnicas</strong> sobre el nivel de detalle de los diagramas: ¿cuántos include/extend se esperan? ¿hay que añadir casos de uso más allá de los 4 obligatorios?','<strong>Al final del día, revisar el trabajo de A y C</strong> para verificar que el diagrama de CU y las descripciones textuales son compatibles entre sí.','<strong>Documentar el avance del día</strong> con la plantilla de registro diario: qué se ha producido, estado de cada entregable y decisiones de diseño tomadas.'],deliverable:'Registro diario documentado. Validación de coherencia entre el diagrama de A y las descripciones de C.'},
+{tasks:['<strong>Crear el diagrama UML de casos de uso</strong> en la herramienta acordada (draw.io, Lucidchart, StarUML). El diagrama debe incluir los 4 casos obligatorios: Crear horario, Consultar horario, Modificar asignación y Detectar solapamiento.','<strong>Incluir todos los actores identificados</strong> y dibujar las líneas de asociación entre cada actor y los casos de uso que puede ejecutar.','<strong>Añadir relaciones include y extend donde corresponda:</strong> Crear horario puede tener «include» con Detectar solapamiento (siempre se ejecuta al crear). Consultar horario puede tener «extend» para las variantes por profesor y por aula.','<strong>Añadir el rectángulo de límite del sistema</strong> (system boundary) que delimita lo que está dentro de la aplicación y lo que está fuera (los actores).','<strong>Antes de dar por terminado el diagrama, verificar que cubre todos los requisitos funcionales del enunciado:</strong> registrar profesores, crear franjas, asignar, consultar, modificar, eliminar, detectar solapamientos, exportar/imprimir.'],deliverable:'Diagrama UML de casos de uso con los 4 casos obligatorios, actores y relaciones include/extend. Exportado en imagen y guardado el archivo editable.'},
+{tasks:['<strong>Abrir la herramienta y crear el diagrama de clases UML</strong> con las 5 clases obligatorias: Profesor, Horario, FranjaHoraria, Aula, Asignatura.','<strong>Añadir a cada clase todos sus atributos</strong> con nombre, tipo de dato y visibilidad correctos (- privado, + público): -nombre:String, -horaInicio:LocalTime, etc.','<strong>Añadir los métodos básicos a cada clase.</strong> Hoy no es necesario tenerlos todos, pero sí los más importantes de cada clase para que el diagrama sea funcional.','<strong>Mantener el diagrama ordenado y legible:</strong> clases bien espaciadas, nombres claros, consistentes con el resto de la documentación del equipo.','<strong>Objetivo del día:</strong> tener las 5 clases con sus atributos visibles. Las relaciones entre clases se añaden mañana.'],deliverable:'Diagrama de clases iniciado con las 5 clases y sus atributos principales. Archivo editable guardado.'},
+{tasks:['<strong>Redactar la descripción textual de los 4 casos de uso obligatorios</strong> con la siguiente estructura estándar para cada uno: Nombre del caso, Actor principal, Precondición, Flujo normal (paso a paso numerado), Flujo alternativo, Postcondición.','<strong>Ejemplo para "Crear asignación":</strong> Actor: Administrador. Precondición: Ha iniciado sesión. Flujo: (1) Selecciona día y hora, (2) selecciona profesor, asignatura y aula, (3) pulsa Guardar, (4) el sistema verifica solapamientos, (5) si no hay conflicto, guarda la asignación y muestra confirmación. Flujo alternativo: si hay solapamiento, el sistema muestra el aviso y cancela o permite forzar. Postcondición: La asignación queda registrada.','<strong>Redactar de forma análoga</strong> los casos de Consultar horario, Modificar asignación y Detectar solapamiento.'],deliverable:'Documento con las descripciones textuales de los 4 casos de uso en formato estructurado (Word o PDF).'},
+]},
+{n:4,date:'Jueves, 14 de mayo',short:'Jue 14/05',hoy:false,title:'Diagrama de clases',
+intro:'Día de finalización de los dos primeros diagramas UML. El diagrama de casos de uso debe quedar cerrado hoy y el diagrama de clases completado con todas las relaciones. Es el último día de producción antes de la revisión del viernes.',
+members:[
+{tasks:['<strong>Revisión formal de los dos diagramas:</strong> verificar que el diagrama de CU de A y el diagrama de clases de B son coherentes. Los métodos de las clases deben dar soporte a las acciones descritas en los casos de uso.','<strong>Comprobar la cobertura de requisitos:</strong> trazar una tabla donde cada requisito funcional del enunciado esté cubierto por al menos un caso de uso del diagrama de A. Si alguno falta, comunicárselo a A.','<strong>Verificar que el vocabulario es consistente en todos los documentos:</strong> los nombres de clases, actores y casos de uso deben ser exactamente iguales en todos los documentos del equipo.','<strong>Documentar el avance de la semana 1</strong> con la plantilla de seguimiento: estado de cada entregable, trabajo realizado por cada miembro y estado general del proyecto.','<strong>Preparar el borrador del informe de fin de semana para los jefes</strong> (se enviará mañana tras la revisión).'],deliverable:'Tabla de trazabilidad requisitos–casos de uso. Borrador del informe de semana 1 preparado.'},
+{tasks:['<strong>Revisar y refinar el diagrama de casos de uso</strong> con los comentarios del PM y el equipo. Comprobar que las relaciones include/extend son correctas y están bien dibujadas.','<strong>Verificar la cobertura completa de los 10 requisitos funcionales:</strong> Registrar profesores, Crear franjas horarias, Asignar profesor a día/hora/aula, Consultar horario semanal, Consultar por profesor, Consultar por aula, Modificar asignación, Eliminar asignación, Detectar solapamientos, Exportar/imprimir horario.','<strong>Añadir los casos de uso que falten</strong> para cubrir todos los requisitos. Por ejemplo, "Eliminar asignación" puede ser un caso independiente o estar dentro de "Modificar asignación".','<strong>Exportar el diagrama en formato imagen (PNG o SVG) en alta resolución</strong> para la documentación. Guardar también el archivo editable. El diagrama queda cerrado hoy.'],deliverable:'Diagrama de casos de uso definitivo cubriendo los 10 requisitos funcionales. Exportado en alta resolución y guardado.'},
+{tasks:['<strong>Completar el diagrama de clases añadiendo todas las relaciones entre las 5 clases</strong> con sus multiplicidades: Horario 1--0..* FranjaHoraria (composición), FranjaHoraria *--1 Profesor, FranjaHoraria *--1 Aula, FranjaHoraria *--1 Asignatura.','<strong>Completar los métodos de cada clase</strong> asegurándote de que dan soporte a todas las operaciones de los casos de uso: Horario.detectarSolapamiento(), Horario.exportar(), Horario.consultarPorProfesor(id), Horario.consultarPorAula(id), etc.','<strong>Verificar que los atributos de las clases cubren todos los datos mínimos del enunciado:</strong> Profesor, Día, Hora de inicio, Hora de fin, Asignatura/tarea, Aula, Observaciones. Si falta alguno, añadirlo.','<strong>Exportar el diagrama en formato imagen en alta resolución</strong> y guardar el archivo editable. El diagrama queda cerrado hoy.'],deliverable:'Diagrama de clases definitivo con 5 clases, atributos completos, métodos y relaciones con multiplicidades. Exportado y guardado.'},
+{tasks:['<strong>Revisar que los datos mencionados en las descripciones de casos de uso de ayer</strong> tienen correspondencia con los atributos de las clases de B. Si en una descripción se menciona un campo que no existe en ninguna clase, comunicárselo a B para que lo añada.','<strong>Revisar la coherencia general entre todos los documentos de la semana:</strong> ¿Los actores del diagrama CU son los mismos que en las descripciones? ¿Los métodos del diagrama de clases dan soporte a los flujos descritos en los casos de uso?','<strong>Actualizar las descripciones de casos de uso</strong> si hay cambios derivados de las revisiones de A o B.','<strong>Empezar a pensar en la lógica de los diagramas de secuencia de la semana 2:</strong> Para "Crear asignación horaria", ¿qué objetos participan? ¿qué mensajes se intercambian? Hacer un borrador en papel como preparación.'],deliverable:'Descripciones de CU actualizadas y consistentes con todos los diagramas. Borrador en papel para los diagramas de secuencia.'},
+]},
+{n:5,date:'Viernes, 15 de mayo',short:'Vie 15/05',hoy:false,title:'Revisión semana 1',
+intro:'Día de cierre de la semana 1. No se avanza a nueva materia: el objetivo es revisar, corregir y consolidar todo lo producido para cerrar la semana con los entregables en su versión definitiva.',
+members:[
+{tasks:['<strong>Convocar y liderar la reunión interna de revisión de semana 1.</strong> Repasar conjuntamente todos los entregables: diagrama CU, diagrama de clases y descripciones de casos de uso.','<strong>Detectar y documentar las inconsistencias encontradas</strong> (nombres distintos para la misma clase, requisitos no cubiertos, relaciones incorrectas) y asignarlas al miembro correspondiente para que las corrija.','<strong>Elaborar y enviar el informe de avance de semana 1 a los jefes:</strong> estado de cada entregable (completado/en revisión), porcentaje de avance general del proyecto, planificación confirmada para la semana 2 y cualquier riesgo identificado.','<strong>Presentar al equipo la planificación de la semana 2:</strong> objetivos de cada día, quién hace qué y qué herramientas se necesitan para los diagramas de secuencia y de flujo.'],deliverable:'Informe de semana 1 enviado a los jefes. Acta de reunión de revisión. Planificación semana 2 comunicada al equipo.'},
+{tasks:['<strong>Revisar el diagrama de casos de uso</strong> aplicando los comentarios de la revisión del equipo. Comprobar la notación UML: actores con muñeco, casos con óvalo, líneas de asociación, include/extend con flecha discontinua y estereotipo «include»/«extend».','<strong>Verificar la cobertura de los 10 requisitos funcionales una última vez.</strong>','<strong>Revisar que las descripciones textuales de C son consistentes con el diagrama.</strong>','<strong>Guardar los archivos definitivos en la carpeta compartida</strong> con nombres claros: "DiagramaCasosDeUso_v2.png", "DiagramaCasosDeUso_v2.drawio".'],deliverable:'Diagrama de casos de uso en versión final. Archivos guardados correctamente en la carpeta compartida.'},
+{tasks:['<strong>Revisar el diagrama de clases</strong> aplicando los comentarios de la revisión. Comprobar la notación UML: visibilidad de atributos (+ / -), tipos de dato en todos los atributos, multiplicidades en todas las relaciones, tipos de relación correctos (asociación, composición).','<strong>Verificar que los nombres de las clases son exactamente los mismos</strong> en el diagrama de clases, el diagrama de CU y las descripciones de casos de uso. La consistencia de nombres es fundamental.','<strong>Dejar el diagrama de clases en una versión "limpia" de referencia</strong> para que A pueda usarla como base al construir los diagramas de secuencia la semana siguiente.','<strong>Guardar los archivos definitivos</strong> en la carpeta compartida con nombres claros.'],deliverable:'Diagrama de clases en versión final. Versión limpia lista para usar como referencia en semana 2.'},
+{tasks:['<strong>Revisar las descripciones de los 4 casos de uso</strong> aplicando los comentarios de la revisión. Asegurarse de que la estructura es homogénea en los 4 casos (mismo formato, misma terminología).','<strong>Verificar que el mapa de navegación de pantallas es completo</strong> y que no falta ninguna de las 6 pantallas del prototipo mínimo exigido.','<strong>Preparar una lista de verificación del prototipo de la semana 2:</strong> ¿qué campos concretos tiene el formulario de Alta? ¿qué columnas muestra la Vista semanal? ¿qué información muestra el aviso de solapamiento? Tenerlo escrito evita tomar decisiones sobre la marcha el miércoles.','<strong>Guardar los archivos definitivos</strong> en la carpeta compartida.'],deliverable:'Descripciones de CU en versión final. Lista de verificación del prototipo preparada para la semana 2.'},
+]},
+{n:6,date:'Lunes, 18 de mayo',short:'Lun 18/05',hoy:false,title:'Diagramas de secuencia',
+intro:'Inicio de la semana 2. Hoy se trabaja en los dos diagramas de secuencia UML obligatorios. Es imprescindible usar los nombres de clases y métodos exactos del diagrama de clases de la semana 1 para que todos los diagramas sean coherentes.',
+members:[
+{tasks:['<strong>Abrir la semana 2 con una reunión breve de 15 minutos</strong> para recordar los objetivos: diagramas de secuencia hoy y mañana, diagrama de flujo también mañana, prototipo el miércoles.','<strong>Explicar al equipo la notación de los diagramas de secuencia</strong> si algún miembro no la conoce bien: actores/objetos en la parte superior con líneas de vida verticales, mensajes horizontales con flechas entre líneas de vida, marcos "alt" para flujos alternativos.','<strong>Verificar a media jornada</strong> que A y B están usando los mismos nombres de clases del diagrama de clases de la semana 1.','<strong>Documentar el inicio de semana 2</strong> con la plantilla de registro diario.'],deliverable:'Registro diario de semana 2 iniciado. Equipo alineado en notación y objetivos de la semana.'},
+{tasks:['<strong>Crear el diagrama de secuencia UML del caso "Crear asignación horaria".</strong> Los participantes del diagrama: Actor (Administrador), UI (interfaz), Controlador, y las clases Horario, FranjaHoraria, Profesor y Aula.','<strong>El flujo principal debe mostrar paso a paso:</strong> (1) El Administrador introduce los datos en la UI, (2) la UI llama al Controlador.crearAsignacion(), (3) el Controlador llama a Horario.detectarSolapamiento(), (4) Horario verifica con FranjaHoraria, (5) si no hay solapamiento, el Controlador crea la FranjaHoraria y la añade al Horario.','<strong>Añadir el flujo alternativo usando un marco "alt":</strong> si detectarSolapamiento() devuelve true, el sistema devuelve un aviso a la UI y no guarda la asignación.','<strong>Usar los nombres de métodos exactos del diagrama de clases de B</strong> (detectarSolapamiento(), addFranja(), etc.). Si un método necesario no estaba en el diagrama de clases, coordinarse con B para que lo añada.'],deliverable:'Diagrama de secuencia "Crear asignación horaria" con flujo principal y flujo alternativo de solapamiento.'},
+{tasks:['<strong>Crear el diagrama de secuencia UML del caso "Consultar horario por profesor".</strong> Participantes: Actor, UI, Controlador, Horario y FranjaHoraria.','<strong>El flujo debe mostrar:</strong> (1) El actor selecciona un profesor en la UI, (2) la UI llama al Controlador.consultarHorario(profesorId), (3) el Controlador llama a Horario.consultarPorProfesor(profesorId), (4) Horario recupera las FranjasHorarias del profesor, (5) devuelve la lista al Controlador, (6) el Controlador devuelve los datos a la UI, (7) la UI muestra el horario del profesor.','<strong>Usar los mismos nombres de clases y métodos del diagrama de clases</strong> de la semana 1.','<strong>Verificar que el diagrama es legible:</strong> líneas de vida bien esparcidas, mensajes no solapados, texto de cada mensaje claro y conciso.'],deliverable:'Diagrama de secuencia "Consultar horario por profesor" completo y legible.'},
+{tasks:['<strong>Iniciar el diagrama de flujo del proceso de creación de horario.</strong> Este diagrama muestra el proceso completo desde el punto de vista del sistema (no de los objetos, como en la secuencia).','<strong>Identificar todos los pasos y decisiones del proceso:</strong> Inicio → el usuario introduce datos → ¿todos los campos están rellenos? → ¿hay solapamiento de profesor? → ¿hay solapamiento de aula? → si todo correcto, guardar y mostrar confirmación → Fin. Si hay error en algún paso, mostrar mensaje y volver al formulario.','<strong>Usar la notación estándar de diagrama de flujo:</strong> óvalos para inicio/fin, rectángulos para procesos, rombos para decisiones (¿hay solapamiento? Sí/No), flechas con etiquetas Sí/No en los rombos.','<strong>Hoy es suficiente con tener la estructura principal.</strong> Mañana se completa y refina.'],deliverable:'Diagrama de flujo iniciado con la estructura principal del proceso de creación de horario.'},
+]},
+{n:7,date:'Martes, 19 de mayo',short:'Mar 19/05',hoy:false,title:'Diagrama de flujo',
+intro:'Día de finalización del diagrama de flujo y revisión de coherencia global. Al final del día deben estar cerrados todos los entregables UML: CU, clases, 2 secuencias y flujo.',
+members:[
+{tasks:['<strong>Revisar la coherencia global de todos los diagramas UML:</strong> Los de secuencia deben usar los mismos nombres de clases que el diagrama de clases, y los mismos casos de uso que aparecen en el diagrama de CU.','<strong>Hacer un chequeo de cobertura final:</strong> ¿Los 4 casos de uso obligatorios tienen representación en los diagramas? ¿El diagrama de flujo cubre el mismo proceso que el diagrama de secuencia de A?','<strong>Documentar el avance del día</strong> y actualizar el estado de entregables en la plantilla de seguimiento.'],deliverable:'Informe de coherencia global. Registro diario actualizado. Lista de correcciones pendientes.'},
+{tasks:['<strong>Revisar y refinar el diagrama de secuencia propio (Crear asignación horaria)</strong> con los comentarios del equipo y el PM.','<strong>Revisar también el diagrama de secuencia de B (Consultar horario por profesor)</strong> para verificar coherencia: ¿se usan los mismos nombres de objetos? ¿el mismo nivel de detalle? ¿la misma notación?','<strong>Comprobar que los mensajes de ambos diagramas usan los métodos definidos en el diagrama de clases de B.</strong> Si falta algún método, coordinarse con B para añadirlo.','<strong>Exportar los dos diagramas de secuencia en formato imagen de alta resolución</strong> y guardarlos en la carpeta compartida con nombres claros.'],deliverable:'Dos diagramas de secuencia revisados, coherentes entre sí y con el diagrama de clases. Exportados y guardados definitivamente.'},
+{tasks:['<strong>Hacer una revisión transversal de toda la documentación UML producida:</strong> abrir todos los diagramas y comprobar que los nombres de clases son exactamente iguales en todos (Profesor no puede llamarse "Profe" en un diagrama y "Profesor" en otro).','<strong>Actualizar el diagrama de clases si los diagramas de secuencia de A revelan que faltan métodos</strong> o que algún método tiene un nombre distinto al que se ha usado en la secuencia.','<strong>Generar un breve documento de coherencia</strong> (puede ser una tabla) listando: diagrama, elementos revisados, correcciones realizadas. Este documento sirve al PM para la documentación final.'],deliverable:'Diagrama de clases actualizado si procede. Documento de coherencia entre todos los diagramas UML.'},
+{tasks:['<strong>Completar y refinar el diagrama de flujo iniciado ayer.</strong> El diagrama debe cubrir el proceso completo: inicio de sesión → acceso al formulario de alta → introducción de datos → validación de campos obligatorios → detección de solapamiento de profesor → detección de solapamiento de aula → confirmación y guardado (o mensaje de error en cada punto de fallo).','<strong>Asegurarte de que los rombos de decisión tienen siempre exactamente dos salidas:</strong> Sí y No. Cada rama debe llevar a una acción concreta o a otro punto de decisión.','<strong>Verificar que el diagrama de flujo es coherente con el diagrama de secuencia "Crear asignación horaria" de A:</strong> el flujo general debe ser el mismo aunque la representación sea diferente.','<strong>Exportar el diagrama de flujo en formato imagen</strong> y guardarlo en la carpeta compartida. El diagrama queda cerrado definitivamente.'],deliverable:'Diagrama de flujo completo, coherente con el diagrama de secuencia, exportado y guardado.'},
+]},
+{n:8,date:'Miércoles, 20 de mayo',short:'Mié 20/05',hoy:false,title:'Prototipo de pantallas',
+intro:'Hoy se diseñan los mockups de las 6 pantallas del prototipo mínimo. Se puede usar papel, Figma, draw.io, Balsamiq o cualquier otra herramienta. Lo importante es que las pantallas sean coherentes visualmente y cubran todos los datos mínimos del enunciado.',
+members:[
+{tasks:['<strong>Coordinar al equipo al inicio del día:</strong> decidir qué herramienta van a usar para los mockups y acordar un estilo visual común (tipo de campos, etiquetas, terminología en botones, navegación).','<strong>Verificar a media jornada que las pantallas de A, B y C son coherentes:</strong> mismo estilo, mismos nombres de campos, misma barra de navegación si la hay.','<strong>Al final del día, revisar el conjunto de las 6 pantallas</strong> para asegurarte de que todos los datos mínimos del enunciado (Profesor, Día, Hora inicio, Hora fin, Asignatura/tarea, Aula, Observaciones) aparecen en alguna pantalla.','<strong>Documentar el avance del día</strong> con la plantilla de registro.'],deliverable:'Registro diario. Validación de coherencia de las 6 pantallas y cobertura de todos los datos mínimos.'},
+{tasks:['<strong>Diseñar el mockup de Login:</strong> campo de usuario/email, campo de contraseña, botón "Entrar", posible enlace "¿Olvidaste tu contraseña?". Nombre o logo del sistema en la parte superior.','<strong>Diseñar el mockup del Panel principal:</strong> menú de navegación lateral o superior con accesos a Vista semanal, Vista por profesor, Alta de asignación y Gestión (si procede). Puede incluir un resumen del horario de la semana actual o accesos rápidos.','<strong>Diseñar el mockup de la Vista semanal:</strong> tabla con los días de la semana (Lunes-Viernes) como columnas y las horas como filas. Cada celda ocupada debe mostrar: nombre del profesor, asignatura y aula. Las celdas vacías se muestran en blanco.'],deliverable:'Mockups de Login, Panel principal y Vista semanal. Visualmente coherentes entre sí.'},
+{tasks:['<strong>Diseñar el mockup de Vista por profesor:</strong> selector o buscador de profesor en la parte superior. Debajo, una tabla o lista con todas las franjas horarias del profesor seleccionado, mostrando día, hora inicio, hora fin, asignatura, aula y observaciones.','<strong>Diseñar el mockup del formulario de Alta de asignación:</strong> debe incluir TODOS los campos obligatorios: selector de Profesor (dropdown o buscador), selector de Día (Lunes-Viernes), campo Hora de inicio, campo Hora de fin, selector de Asignatura, selector de Aula, campo de Observaciones (opcional). Botones "Guardar" y "Cancelar".','<strong>Asegurarse de que el formulario incluye todos los datos mínimos del enunciado.</strong> Si falta algún campo, añadirlo aunque no parezca imprescindible.'],deliverable:'Mockups de Vista por profesor y Alta de asignación. El formulario cubre todos los datos mínimos del enunciado.'},
+{tasks:['<strong>Diseñar el mockup del Aviso de solapamiento:</strong> debe mostrarse como un modal o alerta emergente cuando el sistema detecta un conflicto. Debe indicar: qué tipo de solapamiento se ha detectado (mismo profesor o misma aula en la misma franja), con qué asignación existente colisiona. Dos botones: "Cancelar" y "Forzar de todas formas".','<strong>Una vez terminado el aviso, revisar las 5 pantallas de A y B:</strong> ¿el estilo visual es coherente? ¿los nombres de campos son iguales en todas las pantallas? ¿la navegación entre pantallas tiene sentido lógico?','<strong>Anotar las inconsistencias encontradas</strong> y comunicarlas al miembro correspondiente para que las corrija antes del final del día.'],deliverable:'Mockup de Aviso de solapamiento. Revisión de coherencia de las 6 pantallas completada.'},
+]},
+{n:9,date:'Jueves, 21 de mayo',short:'Jue 21/05',hoy:false,title:'Revisión final y documentación',
+intro:'Penúltimo día. Al final de este día todos los entregables deben estar en versión definitiva y la documentación lista para presentar mañana. Es el día más crítico para el PM.',
+members:[
+{tasks:['<strong>Compilar toda la documentación del proyecto</strong> con las plantillas disponibles: análisis de requisitos, descripción de cada diagrama UML, tabla de trazabilidad requisitos-CU, y registro de avances diarios de las dos semanas.','<strong>Preparar el informe final para los jefes:</strong> resumen ejecutivo del proyecto, descripción de los entregables realizados, decisiones de diseño tomadas y su justificación, y listado de suposiciones o limitaciones del diseño.','<strong>Coordinar la entrega de archivos finales de cada miembro:</strong> solicitar a A, B y C que entreguen sus archivos organizados y con nombres correctos.','<strong>Resolver cualquier inconsistencia de última hora</strong> que surja durante la revisión final.'],deliverable:'Documentación completa del proyecto. Informe final listo. Todos los archivos organizados en la carpeta compartida.'},
+{tasks:['<strong>Revisión final del diagrama de casos de uso:</strong> notación correcta, cobertura completa de los 10 requisitos, nombres consistentes.','<strong>Revisión final de las descripciones de los 4 casos de uso:</strong> estructura homogénea, terminología coherente con los diagramas.','<strong>Revisión final de los dos diagramas de secuencia:</strong> nombres de objetos y métodos coherentes con el diagrama de clases, flujos correctos, marcos alt donde corresponde.','<strong>Entregar al PM todos los archivos finales</strong> (diagramas en imagen + editables, descripciones de CU) organizados con nombres claros.'],deliverable:'Diagrama CU, descripciones de CU y diagramas de secuencia en versión definitiva entregados al PM.'},
+{tasks:['<strong>Revisión final del diagrama de clases:</strong> 5 clases con atributos completos y tipos de dato, métodos de cada clase, relaciones con multiplicidades. Notación UML correcta en todo.','<strong>Revisión final del diagrama de flujo:</strong> proceso completo desde inicio hasta fin, rombos de decisión con dos salidas siempre (Sí/No), inicio y fin marcados con óvalos, coherente con el diagrama de secuencia de A.','<strong>Entregar al PM todos los archivos finales</strong> organizados con nombres claros en la carpeta compartida.'],deliverable:'Diagrama de clases y diagrama de flujo en versión definitiva entregados al PM.'},
+{tasks:['<strong>Revisión final del prototipo de las 6 pantallas:</strong> coherencia visual entre todas, todos los datos mínimos cubiertos, navegación lógica entre pantallas.','<strong>Verificar que las 6 pantallas cubren todos los requisitos funcionales</strong> del enunciado. Si algún requisito no tiene pantalla visible que lo cubra, añadir el elemento correspondiente.','<strong>Preparar los mockups en formato presentable:</strong> exportar como imágenes o PDF, ordenados en el orden lógico de la aplicación (Login → Panel → Vistas → Alta → Aviso).','<strong>Entregar al PM todos los archivos del prototipo</strong> organizados y listos para incluir en la documentación.'],deliverable:'Prototipo de 6 pantallas en versión definitiva, exportado y organizado. Archivos entregados al PM.'},
+]},
+{n:10,date:'Viernes, 22 de mayo',short:'Vie 22/05',hoy:false,title:'Entrega y presentación',
+intro:'Último día del proyecto. El equipo presenta el trabajo realizado a los jefes. El PM lleva la voz cantante, pero todos los miembros deben estar preparados para responder preguntas técnicas sobre sus entregables.',
+members:[
+{tasks:['<strong>Presentar el proyecto siguiendo este orden:</strong> (1) Introducción al sistema y su propósito, (2) Planificación seguida durante las dos semanas, (3) Análisis de requisitos, (4) Diagramas UML: explicar brevemente cada diagrama, (5) Prototipo: mostrar las 6 pantallas en orden de navegación.','<strong>Para cada diagrama UML, explicar:</strong> qué tipo de diagrama es, qué representa en el contexto del sistema y las decisiones de diseño más relevantes tomadas.','<strong>Gestionar las preguntas del tribunal.</strong> Si una pregunta es técnica sobre un diagrama concreto, derivarla al miembro que lo creó.','<strong>Cerrar el proyecto formalmente:</strong> entregar todos los archivos, la documentación completa y el informe final al tribunal.'],deliverable:'Presentación del proyecto completada. Entrega de todos los archivos y documentación.'},
+{tasks:['<strong>Tener todos los archivos organizados y accesibles antes de la presentación</strong> (en local, Drive, USB o el medio acordado).','<strong>Estar preparado para explicar el diagrama de casos de uso:</strong> por qué se eligieron esos actores, qué significan las relaciones include/extend, cómo se cubren todos los requisitos funcionales.','<strong>Estar preparado para explicar los dos diagramas de secuencia:</strong> qué objetos participan en cada uno, por qué esa secuencia de mensajes, qué representa el marco alt.','<strong>Apoyar al PM durante la presentación</strong> y realizar cualquier ajuste de último minuto que se requiera.'],deliverable:'Disponible y preparado para defender técnicamente el diagrama de CU y los diagramas de secuencia.'},
+{tasks:['<strong>Tener todos los archivos organizados y accesibles antes de la presentación.</strong>','<strong>Estar preparado para explicar el diagrama de clases:</strong> por qué esas 5 clases, qué significan las relaciones entre ellas (asociación, composición), por qué esas multiplicidades concretas.','<strong>Estar preparado para explicar el diagrama de flujo:</strong> qué proceso representa, por qué incluye esos puntos de decisión, cómo se relaciona con el diagrama de secuencia de A.','<strong>Apoyar al PM durante la presentación</strong> y realizar cualquier ajuste de último minuto.'],deliverable:'Disponible y preparado para defender técnicamente el diagrama de clases y el diagrama de flujo.'},
+{tasks:['<strong>Tener todos los archivos del prototipo organizados y accesibles</strong> (imágenes, PDF o prototipo interactivo en Figma si se ha hecho así).','<strong>Estar preparado para guiar la demostración del prototipo</strong> si el PM lo requiere: mostrar cada pantalla en orden lógico y explicar qué funcionalidad cubre.','<strong>Estar preparado para justificar las decisiones de diseño del prototipo:</strong> por qué el formulario de Alta tiene esos campos concretos, por qué el aviso de solapamiento muestra esa información.','<strong>Apoyar al PM durante la presentación</strong> y realizar cualquier ajuste de último minuto.'],deliverable:'Disponible y preparado para defender técnicamente el prototipo de pantallas.'},
+]},
+];
+
+var selDay=1,selMember=null;
+function ph(n){return phmap[n];}
+function ptag(p){return'<span class="phase-tag" style="background:'+p.b+';color:'+p.t+'">'+p.l+'</span>';}
+
+function buildNav(){
+  function btn(d){var p=ph(d.n);return'<button class="day-btn'+(selDay===d.n&&!selMember?' active':'')+'" onclick="pickDay('+d.n+')">'+'<span class="dn">'+d.n+'</span>'+'<span class="di"><span class="di-name">'+d.title+'</span><span class="di-date">'+d.short+'</span></span>'+(d.hoy?'<span class="hoy-badge">HOY</span>':'')+'<span class="phase-pip" style="background:'+p.s+'"></span></button>';}
+  document.getElementById('nav-w1').innerHTML=DAYS.slice(0,5).map(btn).join('');
+  document.getElementById('nav-w2').innerHTML=DAYS.slice(5,10).map(btn).join('');
+}
+function buildMF(){
+  var el=document.getElementById('mfilter');
+  el.innerHTML='<button class="mf-btn'+(selMember===null?' active':'')+'" onclick="pickMember(null)"><span class="mf-dot" style="background:rgba(255,255,255,.25)"></span>Ver todos los días</button>'+M.map(function(m){return'<button class="mf-btn'+(selMember===m.id?' active':'')+'" onclick="pickMember(\''+m.id+'\')"><span class="mf-dot" style="background:'+m.hex+'"></span>'+m.name+'</button>';}).join('');
+}
+
+function tl(cur){
+  var h='<div class="timeline">';
+  DAYS.forEach(function(d){var p=ph(d.n);h+='<div class="tl-seg'+(d.n===cur?' cur':'')+'" style="background:'+p.s+';height:'+(d.n===cur?18:8)+'px" onclick="pickDay('+d.n+')" title="Día '+d.n+': '+d.title+'"></div>';});
+  return h+'</div>';
+}
+
+function renderDay(){
+  var d=DAYS.find(function(x){return x.n===selDay;});
+  var p=ph(d.n);
+  var h='<div class="fade">'+tl(d.n);
+  h+='<div class="day-head">'+ptag(p)+'<div class="day-title">'+(d.hoy?'★ Día ':'Día ')+d.n+' — '+d.title+'</div><div class="day-meta">'+d.date+(d.hoy?' &nbsp;·&nbsp; <strong>HOY</strong>':'')+'</div></div>';
+  h+='<div class="day-intro" style="border-left-color:'+p.s+'">'+d.intro+'</div>';
+  h+='<div class="mgrid">';
+  d.members.forEach(function(mem,i){
+    var m=M[i];
+    h+='<div class="mcard"><div class="mc-head"><div class="mc-av" style="background:'+m.bg+';color:'+m.hex+'">'+m.lbl+'</div><div><div class="mc-name" style="color:'+m.hex+'">'+m.name+'</div><div class="mc-role">'+m.role+'</div></div></div><div class="mc-body"><ul class="task-list">'+mem.tasks.map(function(t){return'<li class="task-item"><div class="t-ico" style="border-color:'+m.hex+'"></div><div class="t-txt">'+t+'</div></li>';}).join('')+'</ul><div class="deliv"><div class="del-lbl" style="color:'+m.hex+'">Entregable del día</div><div class="del-txt">'+mem.deliverable+'</div></div></div></div>';
+  });
+  h+='</div></div>';
+  document.getElementById('main').innerHTML=h;
+}
+
+function renderMember(){
+  var mi=M.findIndex(function(x){return x.id===selMember;});
+  var m=M[mi];
+  var h='<div class="fade">'+tl(null);
+  h+='<div class="mv-head"><div class="mv-av" style="background:'+m.bg+';color:'+m.hex+'">'+m.lbl+'</div><div><div class="mv-name" style="color:'+m.hex+'">'+m.name+'</div><div class="mv-sub">'+m.role+'</div></div></div>';
+  DAYS.forEach(function(d){
+    var p=ph(d.n);
+    var mem=d.members[mi];
+    h+='<div class="day-row"><div class="dr-head" onclick="toggleRow(this)"><div class="dr-dn" style="background:'+p.b+';color:'+p.t+'">'+d.n+'</div><div class="dr-info"><div class="dr-title">'+d.title+(d.hoy?' <strong>· HOY</strong>':'')+'</div><div class="dr-date">'+d.date+'</div></div><div class="dr-ph">'+ptag(p)+'</div><svg class="dr-arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 8 10 13 15 8"/></svg></div><div class="dr-body"><ul class="task-list" style="margin-bottom:10px">'+mem.tasks.map(function(t){return'<li class="task-item"><div class="t-ico" style="border-color:'+m.hex+'"></div><div class="t-txt">'+t+'</div></li>';}).join('')+'</ul><div class="deliv"><div class="del-lbl" style="color:'+m.hex+'">Entregable del día</div><div class="del-txt">'+mem.deliverable+'</div></div></div></div>';
+  });
+  h+='</div>';
+  document.getElementById('main').innerHTML=h;
+  // Open today by default
+  var heads=document.querySelectorAll('.dr-head');
+  if(heads.length>0){toggleRow(heads[0]);}
+}
+
+function toggleRow(hdr){
+  var body=hdr.nextElementSibling;
+  var arrow=hdr.querySelector('.dr-arrow');
+  var open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  arrow.classList.toggle('open',!open);
+}
+
+window.pickDay=function(n){selDay=n;selMember=null;buildNav();buildMF();renderDay();document.getElementById('main').scrollTo(0,0);};
+window.pickMember=function(id){selMember=id;if(!id){buildNav();buildMF();renderDay();return;}buildNav();buildMF();renderMember();document.getElementById('main').scrollTo(0,0);};
+
+buildNav();buildMF();renderDay();
+</script>
+</body>
+</html>
