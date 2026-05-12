@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planificación — Proyecto Horario UF3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sb:#111827;--sb2:#1e2a3f;--sbt:#6b7fa3;--sa:#5482f4;--sa-bg:rgba(84,130,244,.14);
+  --bg:#f2f4fb;--card:#fff;--bdr:#e4e8f4;
+  --t1:#0e1a2e;--t2:#485166;--t3:#8a96b0;
+  --p0b:#ede9fe;--p0t:#5b21b6;--p0s:#7c3aed;
+  --p1b:#d1fae5;--p1t:#065f46;--p1s:#10b981;
+  --p2b:#fef3c7;--p2t:#92400e;--p2s:#f59e0b;
+  --p3b:#dbeafe;--p3t:#1e40af;--p3s:#3b82f6;
+  --p4b:#ffedd5;--p4t:#9a3412;--p4s:#f97316;
+  --p5b:#dcfce7;--p5t:#14532d;--p5s:#22c55e;
+  --m0:#6366f1;--m0b:rgba(99,102,241,.1);
+  --m1:#0ea5e9;--m1b:rgba(14,165,233,.1);
+  --m2:#10b981;--m2b:rgba(16,185,129,.1);
+  --m3:#f59e0b;--m3b:rgba(245,158,11,.1);
+}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;display:flex;font-size:14px;line-height:1.5}
+.sidebar{width:255px;min-width:255px;background:var(--sb);height:100vh;position:sticky;top:0;display:flex;flex-direction:column;overflow:hidden}
+.sb-head{padding:22px 18px 18px;border-bottom:1px solid var(--sb2)}
+.sb-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--sa);background:var(--sa-bg);padding:3px 8px;border-radius:20px;display:inline-block;margin-bottom:10px}
+.sb-title{font-size:15px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:4px}
+.sb-sub{font-size:11px;color:var(--sbt)}
+.sb-scroll{flex:1;overflow-y:auto;padding:14px 10px}
+.sb-scroll::-webkit-scrollbar{width:3px}
+.sb-scroll::-webkit-scrollbar-thumb{background:var(--sb2);border-radius:2px}
+.sec-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--sbt);padding:0 8px;margin:0 0 5px}
+.week-sep{margin:12px 0 10px}
+.day-btn{display:flex;align-items:center;gap:9px;width:100%;padding:7px 9px;background:transparent;border:none;border-radius:8px;cursor:pointer;color:var(--sbt);text-align:left;transition:.15s;margin-bottom:1px;font-family:inherit}
+.day-btn:hover{background:rgba(255,255,255,.06);color:#e0e6f5}
+.day-btn.active{background:var(--sa-bg);color:var(--sa)}
+.dn{width:22px;height:22px;border-radius:6px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;transition:.15s}
+.day-btn.active .dn{background:var(--sa);color:#fff}
+.di{flex:1;min-width:0}
+.di-name{display:block;font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}.day-btn.active .di-name{max-width:135px}
+.di-date{display:block;font-size:10px;opacity:.65;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hoy-badge{font-size:9px;font-weight:800;background:#5482f4;color:#fff;padding:1px 6px;border-radius:4px;flex-shrink:0;letter-spacing:.03em}
+.phase-pip{width:6px;height:6px;border-radius:50%;flex:0 0 6px;margin-left:auto}
+.sb-members{border-top:1px solid var(--sb2);padding:12px 10px 14px}
+.mf-btn{display:flex;align-items:center;gap:9px;width:100%;padding:7px 9px;background:transparent;border:none;border-radius:8px;cursor:pointer;color:var(--sbt);text-align:left;font-family:inherit;font-size:12px;font-weight:500;transition:.15s;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mf-btn:hover{background:rgba(255,255,255,.06);color:#e0e6f5}
+.mf-btn.active{background:rgba(255,255,255,.07);color:#fff}
+.mf-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.main{flex:1;padding:32px 36px;overflow-y:auto;min-width:0}
+.timeline{display:flex;gap:3px;margin-bottom:28px;align-items:flex-end;height:20px}
+.tl-seg{flex:1;border-radius:4px;cursor:pointer;transition:.15s}
+.tl-seg:hover{filter:brightness(1.15)}
+.tl-seg.cur{outline:3px solid rgba(255,255,255,.7);outline-offset:-2px}
+.day-head{margin-bottom:18px}
+.phase-tag{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;margin-bottom:12px}
+.day-title{font-size:28px;font-weight:800;line-height:1.2;color:var(--t1)}
+.day-meta{font-size:13px;color:var(--t3);margin-top:6px}
+.day-intro{font-size:13.5px;color:var(--t2);line-height:1.75;margin:18px 0 24px;padding:16px 20px;background:var(--card);border-radius:12px;border-left:4px solid;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+.mgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.mcard{background:var(--card);border-radius:16px;border:1px solid var(--bdr);overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.05)}
+.mc-head{padding:15px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--bdr)}
+.mc-av{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.mc-name{font-size:14px;font-weight:700}
+.mc-role{font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4}
+.mc-body{padding:16px 18px}
+.task-list{list-style:none}
+.task-item{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--bdr)}
+.task-item:last-child{border-bottom:none}
+.t-ico{width:16px;height:16px;border-radius:50%;border:2px solid;flex-shrink:0;margin-top:2px}
+.t-txt{font-size:12.5px;color:var(--t2);line-height:1.65}
+.t-txt strong{font-weight:600;color:var(--t1)}
+.deliv{margin-top:14px;padding:11px 15px;border-radius:10px;background:var(--bg)}
+.del-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.del-txt{font-size:12px;color:var(--t2);line-height:1.6}
+.mv-head{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+.mv-av{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;flex-shrink:0}
+.mv-name{font-size:27px;font-weight:800;line-height:1.2}
+.mv-sub{font-size:13px;color:var(--t3);margin-top:4px}
+.day-row{background:var(--card);border-radius:14px;border:1px solid var(--bdr);overflow:hidden;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.dr-head{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;transition:.15s;user-select:none}
+.dr-head:hover{background:var(--bg)}
+.dr-dn{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.dr-info{flex:1}
+.dr-title{font-size:13px;font-weight:600}
+.dr-date{font-size:11px;color:var(--t3);margin-top:1px}
+.dr-ph{margin-left:auto;flex-shrink:0}
+.dr-arrow{width:18px;height:18px;color:var(--t3);flex-shrink:0;transition:transform .2s}
+.dr-arrow.open{transform:rotate(180deg)}
+.dr-body{padding:0 16px 0 58px;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease}
+.dr-body.open{max-height:1200px;padding:0 16px 16px 58px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.fade{animation:fadeIn .2s ease}
+.print-btn{position:fixed;bottom:22px;right:22px;background:var(--sa);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(84,130,244,.4);transition:.15s;z-index:100}
+.print-btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(84,130,244,.5)}
+@media(max-width:860px){.mgrid{grid-template-columns:1fr}}
+@media(max-width:640px){body{flex-direction:column}.sidebar{width:100%;min-width:unset;height:auto;position:static}.main{padding:20px 16px}}
+@media print{.sidebar,.print-btn{display:none}.main{padding:0}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sb-head">
+    <div class="sb-badge">UF3 · Mayo 2026</div>
+    <div class="sb-title">Proyecto Horario de Departamento</div>
+    <div class="sb-sub">10 días · 4 miembros · Diseño + UML + Prototipo + OWASP</div>
+  </div>
+  <div class="sb-scroll">
+    <div class="sec-lbl">Semana 1 — 11 al 15 de mayo</div>
+    <div id="nav-w1"></div>
+    <div class="week-sep"><div class="sec-lbl">Semana 2 — 18 al 22 de mayo</div></div>
+    <div id="nav-w2"></div>
+  </div>
+  <div class="sb-members">
+    <div class="sec-lbl" style="margin-bottom:8px">Ver por miembro</div>
+    <div id="mfilter"></div>
+  </div>
+</aside>
+<main class="main" id="main"></main>
+<button class="print-btn" onclick="window.print()">⬇ Imprimir / Guardar PDF</button>
+<script>
+var PH=[
+  {l:'Análisis y organización',b:'var(--p0b)',t:'var(--p0t)',s:'#7c3aed',d:[1,2]},
+  {l:'UML base',b:'var(--p1b)',t:'var(--p1t)',s:'#10b981',d:[3,4]},
+  {l:'Revisión Semana 1',b:'var(--p2b)',t:'var(--p2t)',s:'#f59e0b',d:[5]},
+  {l:'Secuencia + Flujo',b:'var(--p3b)',t:'var(--p3t)',s:'#3b82f6',d:[6,7]},
+  {l:'Prototipo + OWASP',b:'var(--p4b)',t:'var(--p4t)',s:'#f97316',d:[8]},
+  {l:'Revisión + Entrega',b:'var(--p5b)',t:'var(--p5t)',s:'#22c55e',d:[9,10]},
+];
+var phmap={};
+PH.forEach(function(p){p.d.forEach(function(n){phmap[n]=p;});});
+var M=[
+  {id:'pm',lbl:'PM',name:'PM (tú)',role:'Coordinación, plantillas, actas, seguimiento, documentación final y revisión general',c:'var(--m0)',bg:'var(--m0b)',hex:'#6366f1'},
+  {id:'a',lbl:'A',name:'Miembro A',role:'Requisitos, actores, casos de uso y diagramas de secuencia',c:'var(--m1)',bg:'var(--m1b)',hex:'#0ea5e9'},
+  {id:'b',lbl:'B',name:'Miembro B',role:'Entidades, diagrama de clases, diagrama de flujo y coherencia UML',c:'var(--m2)',bg:'var(--m2b)',hex:'#10b981'},
+  {id:'c',lbl:'C',name:'Miembro C',role:'Prototipo de pantallas, experiencia de usuario y seguridad OWASP aplicada al diseño',c:'var(--m3)',bg:'var(--m3b)',hex:'#f59e0b'},
+];
+var DAYS=[
+{n:1,date:'Lunes, 11 de mayo',short:'Lun 11/05',hoy:true,title:'Toma de contacto y organización',
+intro:'Primer día real del proyecto. No se programa nada: el objetivo es entender qué quiere el cliente, aclarar qué entregables se piden y repartir tareas de forma sencilla. La idea es trabajar como una empresa: reunión, acta, decisiones, responsables y próximos pasos.',
+members:[
+{tasks:['<strong>Crear la carpeta principal del proyecto:</strong> organizar los documentos por apartados claros: actas, análisis, UML, prototipo, OWASP, informes y presentación. Así nadie pierde archivos.','<strong>Rellenar el acta de la primera reunión con el cliente:</strong> escribir quién asistió, qué pidió el cliente, qué se entendió del proyecto y qué dudas quedaron pendientes. No hace falta lenguaje técnico complicado.','<strong>Explicar al equipo el alcance real:</strong> dejar claro que el equipo no programa, no crea base de datos y no toca código. Nuestro trabajo es diseñar, documentar, hacer UML, prototipo y justificar seguridad.','<strong>Repartir roles:</strong> A se centra en requisitos y casos de uso, B en clases y flujo, C en prototipo y OWASP, y tú coordinas documentación y seguimiento.','<strong>Preparar una lista de entregables obligatorios:</strong> plantillas Word, diagramas UML, prototipo de 6 pantallas, apartado OWASP, informe final y guion de presentación.'],deliverable:'Acta inicial redactada, carpeta del proyecto organizada y reparto de roles escrito para todo el equipo.'},
+{tasks:['<strong>Leer el enunciado con calma:</strong> marcar qué cosas pide la aplicación: registrar profesores, crear franjas, asignar profesor, consultar horarios, modificar, eliminar, detectar solapamientos y exportar/imprimir.','<strong>Hacer una lista simple de actores:</strong> personas que usarán la aplicación. Por ejemplo: administrador/coordinador del departamento y profesor que consulta su horario.','<strong>Traducir los requisitos a palabras fáciles:</strong> por ejemplo, “Consultar horario por profesor” significa que el usuario elige un profesor y ve sus clases o tareas de la semana.','<strong>Anotar dudas:</strong> escribir cualquier cosa que no esté clara, como si los profesores pueden modificar horarios o solo consultarlos.'],deliverable:'Lista inicial de actores y requisitos explicados con frases sencillas.'},
+{tasks:['<strong>Localizar las entidades principales:</strong> identificar las cosas importantes del sistema: Profesor, Horario, FranjaHoraria, Aula y Asignatura.','<strong>Explicar cada entidad sin tecnicismos:</strong> Profesor es la persona, Aula es el espacio, Asignatura es la materia o tarea, FranjaHoraria es un bloque de tiempo y Horario agrupa todas las asignaciones.','<strong>Relacionar entidades con los datos mínimos:</strong> comprobar dónde encajan Día, Hora inicio, Hora fin, Aula, Observaciones y Profesor.','<strong>Preparar un borrador en papel:</strong> dibujar las 5 entidades y unirlas de forma intuitiva para entender cómo se relacionan.'],deliverable:'Borrador sencillo con las 5 entidades y explicación básica de cada una.'},
+{tasks:['<strong>Listar las 6 pantallas obligatorias:</strong> Login, Panel principal, Vista semanal, Vista por profesor, Alta de asignación y Aviso de solapamiento.','<strong>Explicar para qué sirve cada pantalla:</strong> una frase por pantalla. Ejemplo: “Alta de asignación sirve para crear una clase o tarea en un día, hora, aula y profesor concretos”.','<strong>Empezar el apartado OWASP en modo diseño:</strong> anotar ideas básicas: login, contraseñas ocultas, permisos por usuario, validación de campos y mensajes de error claros.','<strong>Revisar que el prototipo futuro no olvide ningún dato mínimo:</strong> todos los campos obligatorios deben aparecer en alguna pantalla.'],deliverable:'Lista de pantallas con función de cada una y primeras ideas OWASP aplicadas al diseño.'},
+]},
+{n:2,date:'Martes, 12 de mayo',short:'Mar 12/05',hoy:false,title:'Análisis inicial del proyecto',
+intro:'Hoy se convierte lo hablado con el cliente en documentación. El objetivo no es ser muy técnico, sino dejar por escrito qué necesita el sistema y cómo lo vamos a representar en diagramas y pantallas.',
+members:[
+{tasks:['<strong>Rellenar la plantilla de análisis inicial:</strong> describir el proyecto, el objetivo, qué problema resuelve y qué entregables se van a preparar.','<strong>Escribir el alcance del equipo:</strong> indicar que se realizará análisis, diseño funcional, UML, prototipo, documentación y seguridad OWASP a nivel de diseño, sin desarrollo de código ni base de datos.','<strong>Crear una tabla de requisitos:</strong> una columna con el requisito del enunciado y otra con una explicación fácil.','<strong>Revisar el trabajo de A, B y C:</strong> comprobar que todos usan los mismos nombres: Profesor, Aula, Asignatura, FranjaHoraria y Horario.','<strong>Actualizar la plantilla de seguimiento:</strong> qué se hizo ayer, qué se hace hoy, problemas encontrados y tareas pendientes.'],deliverable:'Plantilla de análisis inicial completada y seguimiento diario actualizado.'},
+{tasks:['<strong>Ordenar los requisitos funcionales:</strong> separarlos en altas, consultas, modificaciones, eliminación, solapamientos y exportación.','<strong>Definir los casos de uso obligatorios:</strong> Crear horario, Consultar horario, Modificar asignación y Detectar solapamiento.','<strong>Añadir casos secundarios si ayudan:</strong> Registrar profesor, Crear franja horaria, Consultar por aula, Consultar por profesor, Eliminar asignación y Exportar horario.','<strong>Indicar qué actor usa cada caso:</strong> por ejemplo, el administrador crea y modifica horarios; el profesor puede consultar.','<strong>Preparar un esquema previo del diagrama:</strong> actor a la izquierda, casos de uso dentro del rectángulo del sistema.'],deliverable:'Lista ordenada de casos de uso con actor responsable y explicación simple.'},
+{tasks:['<strong>Preparar la base del diagrama de clases:</strong> escribir las 5 clases obligatorias sin pensar en base de datos. Esto es diseño, no programación.','<strong>Asignar atributos básicos:</strong> Profesor tendrá nombre y correo; Aula tendrá nombre o código; Asignatura tendrá nombre; FranjaHoraria tendrá día, hora inicio, hora fin y observaciones; Horario agrupará franjas.','<strong>Definir relaciones de forma entendible:</strong> una franja horaria pertenece a un horario, tiene un profesor, un aula y una asignatura.','<strong>No complicar con métodos técnicos:</strong> si se añaden operaciones, que sean descriptivas: crear asignación, modificar asignación, consultar horario y detectar solapamiento.'],deliverable:'Documento sencillo con clases, atributos y relaciones principales, sin enfoque de programación.'},
+{tasks:['<strong>Detallar las pantallas:</strong> para cada pantalla, escribir qué ve el usuario y qué puede hacer.','<strong>Crear un mapa de navegación:</strong> Login → Panel principal → Vista semanal / Vista por profesor / Alta de asignación → Aviso de solapamiento si hay conflicto.','<strong>Definir campos del formulario de alta:</strong> Profesor, Día, Hora inicio, Hora fin, Asignatura/tarea, Aula y Observaciones.','<strong>Concretar OWASP en lenguaje simple:</strong> el sistema debe pedir login, no mostrar contraseñas, validar campos, controlar permisos y mostrar errores sin información sensible.'],deliverable:'Descripción de pantallas, mapa de navegación y lista OWASP inicial.'},
+]},
+{n:3,date:'Miércoles, 13 de mayo',short:'Mié 13/05',hoy:false,title:'Casos de uso y explicación funcional',
+intro:'Hoy se empieza con UML de forma práctica. El diagrama de casos de uso sirve para enseñar qué puede hacer cada usuario dentro de la aplicación. Debe ser claro, no recargado.',
+members:[
+{tasks:['<strong>Revisar que el diagrama de casos de uso cubre todo el enunciado:</strong> no debe faltar consultar semanal, por profesor, por aula, modificar, eliminar, detectar solapamiento y exportar.','<strong>Crear una tabla de trazabilidad sencilla:</strong> Requisito → Caso de uso que lo cubre. Esto ayuda mucho en la documentación final.','<strong>Redactar en la plantilla correspondiente lo avanzado:</strong> qué se diseñó, qué decisiones se tomaron y qué queda pendiente.','<strong>Resolver dudas de notación:</strong> recordar al equipo que los actores van fuera del sistema y los casos de uso dentro del rectángulo.'],deliverable:'Tabla requisito–caso de uso iniciada y registro diario actualizado.'},
+{tasks:['<strong>Dibujar el diagrama de casos de uso:</strong> usar una herramienta sencilla como draw.io. Debe verse limpio y entendible.','<strong>Incluir actores:</strong> Administrador/Coordinador del departamento y Profesor. Si el equipo lo decide, se puede añadir “Sistema” solo para la detección automática de solapamientos.','<strong>Incluir los casos obligatorios:</strong> Crear horario, Consultar horario, Modificar asignación y Detectar solapamiento.','<strong>Añadir casos útiles:</strong> Registrar profesor, Crear franja horaria, Consultar por profesor, Consultar por aula, Eliminar asignación y Exportar/imprimir horario.','<strong>Usar include/extend solo si se entiende:</strong> Crear asignación puede incluir Detectar solapamiento, porque siempre se comprueba antes de guardar.'],deliverable:'Primer diagrama de casos de uso en formato editable e imagen.'},
+{tasks:['<strong>Ayudar a revisar nombres:</strong> comprobar que los nombres usados en casos de uso coinciden con las clases y pantallas.','<strong>Preparar el diagrama de clases en borrador digital:</strong> colocar las 5 clases obligatorias y sus atributos básicos.','<strong>No entrar en detalles de código:</strong> evitar cosas como controladores, SQL o estructura de base de datos. Solo representar el diseño del sistema.','<strong>Comprobar que cada requisito tiene una entidad relacionada:</strong> por ejemplo, consultar por aula necesita la entidad Aula; consultar por profesor necesita Profesor.'],deliverable:'Borrador digital del diagrama de clases con las 5 clases principales.'},
+{tasks:['<strong>Redactar la descripción de los casos de uso principales:</strong> usar lenguaje sencillo: qué quiere hacer el usuario, qué pasos sigue y qué resultado obtiene.','<strong>Para Crear horario:</strong> explicar que el usuario introduce profesor, día, horas, asignatura, aula y observaciones; el sistema comprueba solapamientos y guarda si no hay conflicto.','<strong>Para Consultar horario:</strong> explicar que se puede ver semanal, por profesor o por aula.','<strong>Para Modificar asignación:</strong> explicar que el usuario edita una asignación existente y el sistema vuelve a comprobar solapamientos.','<strong>Para Detectar solapamiento:</strong> explicar que evita que un profesor o aula estén ocupados a la vez.'],deliverable:'Descripciones textuales de los 4 casos de uso obligatorios.'},
+]},
+{n:4,date:'Jueves, 14 de mayo',short:'Jue 14/05',hoy:false,title:'Diagrama de clases y revisión UML base',
+intro:'Hoy se cierra la parte UML básica de la semana 1. El diagrama de clases no representa tablas de base de datos ni código: representa los elementos importantes del sistema y cómo se relacionan.',
+members:[
+{tasks:['<strong>Revisar el diagrama de casos de uso:</strong> comprobar que está completo, claro y sin nombres raros.','<strong>Revisar el diagrama de clases:</strong> comprobar que aparecen Profesor, Horario, FranjaHoraria, Aula y Asignatura.','<strong>Actualizar la tabla de trazabilidad:</strong> cada requisito debe estar cubierto por un caso de uso y, si procede, por una pantalla.','<strong>Guardar versiones ordenadas:</strong> usar nombres como Diagrama_Casos_Uso_v1 y Diagrama_Clases_v1.','<strong>Redactar el seguimiento del día:</strong> avances, problemas, cambios y pendientes para mañana.'],deliverable:'Revisión UML base completada y tabla de trazabilidad actualizada.'},
+{tasks:['<strong>Corregir el diagrama de casos de uso:</strong> aplicar cambios detectados por el equipo.','<strong>Comprobar que los actores tienen sentido:</strong> no poner demasiados si no aportan claridad.','<strong>Revisar la relación con OWASP:</strong> añadir si procede el caso de uso “Iniciar sesión”, porque el login es importante para controlar quién entra.','<strong>Exportar el diagrama:</strong> guardar una imagen para el informe y el archivo editable para posibles cambios.'],deliverable:'Diagrama de casos de uso revisado y exportado.'},
+{tasks:['<strong>Completar el diagrama de clases:</strong> añadir atributos básicos y relaciones entre clases.','<strong>Relaciones recomendadas:</strong> Horario contiene varias FranjasHorarias; cada FranjaHoraria tiene un Profesor, un Aula y una Asignatura.','<strong>Añadir multiplicidades sencillas:</strong> un Horario puede tener muchas franjas; una FranjaHoraria tiene un profesor; un profesor puede aparecer en muchas franjas.','<strong>Evitar exceso técnico:</strong> no añadir base de datos, SQL, controladores ni código. El objetivo es que el diseño se entienda.','<strong>Exportar el diagrama:</strong> imagen para el informe y editable para cambios.'],deliverable:'Diagrama de clases terminado con clases, atributos y relaciones principales.'},
+{tasks:['<strong>Revisar las descripciones de casos de uso:</strong> comprobar que coinciden con el diagrama de casos de uso.','<strong>Revisar pantallas previstas:</strong> confirmar que hay pantalla para consultar, crear, modificar y mostrar solapamientos.','<strong>Ampliar OWASP aplicado al diseño:</strong> login obligatorio, permisos por rol, validación de campos, errores claros, no mostrar información sensible y registro de acciones importantes.','<strong>Preparar checklist para el prototipo:</strong> lista de elementos que deberán aparecer en cada pantalla la semana 2.'],deliverable:'Descripciones revisadas y checklist de prototipo + OWASP preparado.'},
+]},
+{n:5,date:'Viernes, 15 de mayo',short:'Vie 15/05',hoy:false,title:'Cierre y revisión de la semana 1',
+intro:'Hoy no se empieza nada nuevo. Se revisa lo creado durante la semana para llegar a la semana 2 con una base sólida. Es mejor corregir ahora que rehacerlo todo al final.',
+members:[
+{tasks:['<strong>Organizar reunión interna de revisión:</strong> repasar requisitos, casos de uso, clases, pantallas previstas y OWASP.','<strong>Actualizar la plantilla de seguimiento semanal:</strong> indicar qué se ha terminado, qué falta, qué riesgos hay y cómo se resolverán.','<strong>Preparar un pequeño informe de semana 1:</strong> explicar que ya está hecho el análisis base y los primeros diagramas.','<strong>Comprobar la carpeta del proyecto:</strong> todos los archivos deben estar en su sitio y con nombres claros.','<strong>Planificar la semana 2:</strong> secuencias, flujo, prototipo, documentación final y presentación.'],deliverable:'Informe de semana 1, acta de revisión y planificación de semana 2.'},
+{tasks:['<strong>Revisar el diagrama de casos de uso completo:</strong> comprobar que se entiende sin tener que explicarlo demasiado.','<strong>Verificar que los 4 casos obligatorios están presentes:</strong> Crear horario, Consultar horario, Modificar asignación y Detectar solapamiento.','<strong>Comprobar que los requisitos secundarios están representados:</strong> registrar profesor, crear franja, consultar por aula, eliminar y exportar.','<strong>Entregar al PM el archivo editable y la imagen final de la semana 1.'],deliverable:'Casos de uso revisados y entregados al PM.'},
+{tasks:['<strong>Revisar el diagrama de clases:</strong> confirmar que las 5 clases obligatorias están y se entienden.','<strong>Comprobar los datos mínimos:</strong> Profesor, Día, Hora inicio, Hora fin, Asignatura/tarea, Aula y Observaciones deben estar representados.','<strong>Corregir relaciones confusas:</strong> simplificar si hay demasiadas flechas o nombres difíciles.','<strong>Entregar al PM el archivo editable y la imagen final de la semana 1.'],deliverable:'Diagrama de clases revisado y entregado al PM.'},
+{tasks:['<strong>Revisar el checklist de pantallas:</strong> confirmar que las 6 pantallas obligatorias están definidas.','<strong>Revisar OWASP:</strong> preparar una lista breve de medidas de seguridad que se reflejarán en el prototipo.','<strong>Preparar guía para el prototipo:</strong> colores, estilo, campos, botones y orden de navegación.','<strong>Entregar al PM el documento de pantallas y OWASP.'],deliverable:'Checklist de pantallas y lista OWASP listos para semana 2.'},
+]},
+{n:6,date:'Lunes, 18 de mayo',short:'Lun 18/05',hoy:false,title:'Diagramas de secuencia',
+intro:'Hoy se hacen los dos diagramas de secuencia obligatorios. Estos diagramas explican el orden de pasos entre usuario, pantalla y sistema. No hace falta pensar en código real: solo mostrar qué ocurre primero, después y al final.',
+members:[
+{tasks:['<strong>Hacer reunión breve de inicio:</strong> recordar que esta semana se cierran diagramas, prototipo, OWASP y documentación.','<strong>Explicar qué es un diagrama de secuencia:</strong> una línea temporal de pasos. Por ejemplo: usuario rellena formulario → sistema comprueba datos → sistema avisa o guarda.','<strong>Revisar que A y B usen nombres iguales:</strong> Crear asignación horaria y Consultar horario por profesor deben coincidir con los casos de uso.','<strong>Actualizar seguimiento diario:</strong> registrar avances y posibles bloqueos.'],deliverable:'Semana 2 iniciada y seguimiento diario actualizado.'},
+{tasks:['<strong>Crear diagrama de secuencia “Crear asignación horaria”:</strong> representar el proceso desde que el usuario entra al formulario hasta que se guarda o aparece aviso de solapamiento.','<strong>Usar participantes sencillos:</strong> Usuario, Pantalla Alta de asignación, Sistema de horarios y Aviso de solapamiento.','<strong>Flujo principal:</strong> el usuario rellena datos, pulsa guardar, el sistema comprueba campos, comprueba solapamientos y guarda la asignación si todo está correcto.','<strong>Flujo alternativo:</strong> si hay solapamiento de profesor o aula, se muestra el aviso y el usuario decide cancelar o revisar datos.','<strong>No usar lenguaje de programación:</strong> evitar nombres como controlador, SQL o funciones técnicas.'],deliverable:'Diagrama de secuencia Crear asignación horaria terminado en borrador.'},
+{tasks:['<strong>Crear diagrama de secuencia “Consultar horario por profesor”:</strong> representar cómo el usuario elige un profesor y ve su horario.','<strong>Usar participantes sencillos:</strong> Usuario, Pantalla Vista por profesor y Sistema de horarios.','<strong>Flujo principal:</strong> el usuario abre la vista, selecciona profesor, el sistema busca sus franjas y muestra día, horas, asignatura, aula y observaciones.','<strong>Flujo alternativo:</strong> si el profesor no tiene horario asignado, el sistema muestra un mensaje claro: “No hay asignaciones para este profesor”.','<strong>Mantenerlo visual y simple:</strong> pocas líneas, mensajes cortos y orden claro.'],deliverable:'Diagrama de secuencia Consultar horario por profesor terminado en borrador.'},
+{tasks:['<strong>Revisar las secuencias desde el punto de vista del usuario:</strong> comprobar que los pasos tienen sentido y coinciden con las pantallas previstas.','<strong>Preparar el diseño del aviso de solapamiento:</strong> qué texto aparece, qué datos muestra y qué botones tendrá.','<strong>Añadir mirada OWASP:</strong> indicar que antes de guardar se validan campos y permisos, y que los errores deben ser claros pero sin mostrar datos internos del sistema.'],deliverable:'Revisión funcional y OWASP de los diagramas de secuencia.'},
+]},
+{n:7,date:'Martes, 19 de mayo',short:'Mar 19/05',hoy:false,title:'Diagrama de flujo del proceso',
+intro:'Hoy se hace el diagrama de flujo de creación de horario. Este diagrama es como un camino con decisiones: si falta un campo, vuelve al formulario; si hay solapamiento, muestra aviso; si todo está bien, guarda.',
+members:[
+{tasks:['<strong>Revisar los diagramas de secuencia:</strong> comprobar que están claros y no parecen código.','<strong>Supervisar el diagrama de flujo:</strong> debe ser fácil de seguir desde inicio hasta fin.','<strong>Actualizar documento técnico:</strong> añadir breve explicación de para qué sirve cada diagrama.','<strong>Registrar decisiones:</strong> por ejemplo, el sistema debe avisar de solapamiento antes de permitir guardar.'],deliverable:'Revisión de secuencias y registro diario actualizado.'},
+{tasks:['<strong>Corregir el diagrama de secuencia de crear asignación:</strong> añadir comentarios del PM y C.','<strong>Corregir el diagrama de consultar horario por profesor:</strong> ayudar a B a revisar nombres y orden.','<strong>Exportar ambos diagramas:</strong> guardar en imagen y archivo editable.','<strong>Preparar una explicación breve:</strong> 4 o 5 frases para poder defender cada diagrama en la presentación.'],deliverable:'Diagramas de secuencia revisados, exportados y con explicación breve.'},
+{tasks:['<strong>Crear el diagrama de flujo:</strong> Inicio → usuario accede → rellena formulario → ¿campos completos? → ¿hay solapamiento? → guardar o mostrar aviso.','<strong>Usar símbolos sencillos:</strong> óvalo para inicio/fin, rectángulo para acciones y rombo para preguntas de Sí/No.','<strong>Incluir validaciones básicas:</strong> campos obligatorios, formato de hora correcto, hora fin posterior a hora inicio, profesor disponible y aula disponible.','<strong>Incluir salida de error:</strong> si algo falla, se muestra mensaje y se vuelve al formulario.','<strong>Exportar el diagrama en imagen y editable.'],deliverable:'Diagrama de flujo completo del proceso de creación de horario.'},
+{tasks:['<strong>Revisar el diagrama de flujo con enfoque OWASP:</strong> comprobar que aparecen validación de datos, control de permisos y errores controlados.','<strong>Redactar apartado OWASP aplicado:</strong> explicar que, aunque no se programe, el diseño ya contempla seguridad.','<strong>Relacionar OWASP con pantallas:</strong> Login protege acceso, Alta valida campos, Aviso de solapamiento evita errores y los mensajes no muestran información interna.'],deliverable:'Apartado OWASP aplicado al diseño redactado en borrador.'},
+]},
+{n:8,date:'Miércoles, 20 de mayo',short:'Mié 20/05',hoy:false,title:'Prototipo de pantallas y OWASP',
+intro:'Hoy se diseñan las 6 pantallas obligatorias. No hace falta que funcionen de verdad: son mockups para enseñar cómo será la aplicación. Deben ser claros y cubrir los datos mínimos del enunciado.',
+members:[
+{tasks:['<strong>Decidir herramienta de prototipo:</strong> Figma, draw.io, Canva, PowerPoint o incluso imágenes bien preparadas. Lo importante es que se entienda.','<strong>Revisar que las 6 pantallas estén presentes:</strong> Login, Panel principal, Vista semanal, Vista por profesor, Alta de asignación y Aviso de solapamiento.','<strong>Comprobar coherencia visual:</strong> mismos nombres de botones, campos y menús en todas las pantallas.','<strong>Actualizar seguimiento:</strong> documentar qué pantallas se han hecho y si queda algo pendiente.'],deliverable:'Prototipo supervisado y seguimiento diario actualizado.'},
+{tasks:['<strong>Revisar navegación del prototipo:</strong> el usuario debe poder entender cómo va de una pantalla a otra.','<strong>Validar Login y Panel principal:</strong> Login debe pedir usuario y contraseña; Panel principal debe tener accesos a las funciones importantes.','<strong>Revisar Vista semanal:</strong> debe mostrar días, horas y asignaciones con profesor, asignatura y aula.','<strong>Comprobar que lo diseñado coincide con los casos de uso:</strong> si hay un caso de uso de consultar horario, debe existir una pantalla que lo permita.'],deliverable:'Revisión de navegación, Login, Panel principal y Vista semanal.'},
+{tasks:['<strong>Revisar la Vista por profesor:</strong> debe tener buscador o selector de profesor y una tabla con día, hora inicio, hora fin, asignatura, aula y observaciones.','<strong>Revisar Alta de asignación:</strong> debe incluir Profesor, Día, Hora inicio, Hora fin, Asignatura/tarea, Aula y Observaciones.','<strong>Comprobar que los nombres coinciden con las clases:</strong> usar Profesor, Aula, Asignatura y FranjaHoraria como en los diagramas.','<strong>Preparar observaciones para corregir si falta algún campo.'],deliverable:'Revisión de Vista por profesor y Alta de asignación completada.'},
+{tasks:['<strong>Diseñar o terminar las 6 pantallas:</strong> especialmente el Aviso de solapamiento, que debe ser claro y visible.','<strong>En el aviso de solapamiento:</strong> mostrar si el problema es por profesor ocupado o aula ocupada, y qué asignación causa el conflicto.','<strong>Añadir OWASP al prototipo:</strong> contraseña oculta en Login, mensajes de error genéricos, campos obligatorios marcados, botones claros y control de acceso por rol.','<strong>Exportar las pantallas:</strong> en PNG o PDF, ordenadas según el recorrido del usuario.'],deliverable:'Prototipo completo de 6 pantallas con medidas OWASP visibles.'},
+]},
+{n:9,date:'Jueves, 21 de mayo',short:'Jue 21/05',hoy:false,title:'Documentación final y revisión general',
+intro:'Penúltimo día. Hay que juntar todo y dejarlo presentable. Hoy el objetivo es que cualquier persona pueda abrir la documentación y entender qué se ha diseñado, por qué y cómo se ha organizado el trabajo.',
+members:[
+{tasks:['<strong>Compilar las plantillas:</strong> análisis inicial, actas, seguimiento, diseño funcional, documento técnico, informe final y guion de presentación.','<strong>Ordenar la documentación:</strong> introducción, objetivo, alcance, requisitos, UML, prototipo, OWASP, planificación, seguimiento y conclusiones.','<strong>Revisar que no parezca un proyecto de programación:</strong> dejar claro que se trata de análisis y diseño para que otro departamento implemente.','<strong>Pedir entregables finales a A, B y C:</strong> imágenes, editables y textos explicativos.','<strong>Preparar el guion de presentación:</strong> quién habla, qué explica cada uno y en qué orden.'],deliverable:'Informe final y guion de presentación preparados.'},
+{tasks:['<strong>Entregar casos de uso finales:</strong> imagen, editable y explicación breve.','<strong>Entregar secuencias finales:</strong> Crear asignación horaria y Consultar horario por profesor.','<strong>Preparar explicación para presentación:</strong> qué muestra cada diagrama y por qué es útil para entender el sistema.','<strong>Revisar que los nombres sean iguales en todos los documentos.'],deliverable:'Casos de uso y secuencias finales entregados al PM.'},
+{tasks:['<strong>Entregar diagrama de clases final:</strong> imagen, editable y explicación breve.','<strong>Entregar diagrama de flujo final:</strong> imagen, editable y explicación breve.','<strong>Revisar coherencia:</strong> las clases deben coincidir con las pantallas y casos de uso.','<strong>Preparar defensa sencilla:</strong> explicar las clases como elementos del mundo real, no como código.'],deliverable:'Clases y flujo finales entregados al PM.'},
+{tasks:['<strong>Entregar prototipo final:</strong> las 6 pantallas en orden lógico.','<strong>Entregar apartado OWASP:</strong> explicar medidas de seguridad aplicadas al diseño: login, permisos, validación, mensajes de error y solapamientos.','<strong>Revisar que cada pantalla tenga sentido:</strong> el usuario debe saber qué hacer sin explicación larga.','<strong>Preparar explicación del prototipo:</strong> recorrido desde Login hasta crear asignación y recibir aviso si hay conflicto.'],deliverable:'Prototipo final y apartado OWASP entregados al PM.'},
+]},
+{n:10,date:'Viernes, 22 de mayo',short:'Vie 22/05',hoy:false,title:'Entrega y presentación final',
+intro:'Último día. Ya no se debe crear contenido nuevo salvo correcciones pequeñas. El objetivo es presentar con seguridad: qué problema había, qué diseño se propone, qué diagramas lo explican, qué pantallas tendrá y cómo se ha considerado OWASP.',
+members:[
+{tasks:['<strong>Presentar el proyecto de forma ordenada:</strong> objetivo, alcance, planificación, requisitos, UML, prototipo, OWASP y conclusiones.','<strong>Explicar el alcance:</strong> el equipo entrega diseño y documentación para que otro departamento pueda desarrollar la aplicación.','<strong>Controlar tiempos:</strong> no alargar demasiado cada parte. Priorizar que se entienda.','<strong>Coordinar preguntas:</strong> derivar a A, B o C según el tema.','<strong>Entregar carpeta final:</strong> documentos, diagramas, prototipo y presentación.'],deliverable:'Presentación realizada y entrega final completada.'},
+{tasks:['<strong>Explicar casos de uso:</strong> qué usuarios hay y qué acciones pueden realizar.','<strong>Explicar secuencia de Crear asignación:</strong> usuario introduce datos, sistema valida, comprueba solapamiento y guarda o avisa.','<strong>Explicar secuencia de Consultar por profesor:</strong> usuario selecciona profesor y ve su horario.','<strong>Responder preguntas sobre requisitos y casos de uso.'],deliverable:'Parte de requisitos, casos de uso y secuencias defendida.'},
+{tasks:['<strong>Explicar diagrama de clases:</strong> Profesor, Horario, FranjaHoraria, Aula y Asignatura como elementos principales del sistema.','<strong>Explicar relaciones:</strong> una franja une profesor, aula, asignatura, día y horas dentro del horario.','<strong>Explicar diagrama de flujo:</strong> camino de creación de horario con decisiones de validación y solapamiento.','<strong>Responder preguntas sobre coherencia UML.'],deliverable:'Parte de clases y flujo defendida.'},
+{tasks:['<strong>Mostrar prototipo:</strong> recorrer Login, Panel principal, Vista semanal, Vista por profesor, Alta de asignación y Aviso de solapamiento.','<strong>Explicar OWASP sin tecnicismos:</strong> el diseño protege el acceso, valida datos, controla permisos y evita errores al crear horarios.','<strong>Justificar el aviso de solapamiento:</strong> evita asignar un profesor o aula en dos sitios a la vez.','<strong>Responder preguntas sobre pantallas y seguridad.'],deliverable:'Parte de prototipo y OWASP defendida.'},
+]},
+];
+
+var selDay=1,selMember=null;
+function ph(n){return phmap[n];}
+function ptag(p){return'<span class="phase-tag" style="background:'+p.b+';color:'+p.t+'">'+p.l+'</span>';}
+
+function buildNav(){
+  function btn(d){
+    var p=ph(d.n);
+    return '<button class="day-btn'+(selDay===d.n&&!selMember?' active':'')+'" onclick="pickDay('+d.n+')">'
+      +'<span class="dn">'+d.n+'</span>'
+      +'<span class="di"><span class="di-name">'+d.title+'</span><span class="di-date">'+d.short+'</span></span>'
+      +(d.hoy?'<span class="hoy-badge">HOY</span>':'')
+      +'<span class="phase-pip" style="background:'+p.s+'"></span></button>';
+  }
+  document.getElementById('nav-w1').innerHTML=DAYS.slice(0,5).map(btn).join('');
+  document.getElementById('nav-w2').innerHTML=DAYS.slice(5,10).map(btn).join('');
+}
+
+function buildMF(){
+  var el=document.getElementById('mfilter');
+  el.innerHTML='<button class="mf-btn'+(selMember===null?' active':'')+'" onclick="pickMember(null)"><span class="mf-dot" style="background:rgba(255,255,255,.25)"></span>Ver todos los días</button>'
+    +M.map(function(m){
+      return '<button class="mf-btn'+(selMember===m.id?' active':'')+'" onclick="pickMember(\''+m.id+'\')"><span class="mf-dot" style="background:'+m.hex+'"></span>'+m.name+'</button>';
+    }).join('');
+}
+
+function tl(cur){
+  var h='<div class="timeline">';
+  DAYS.forEach(function(d){
+    var p=ph(d.n);
+    h+='<div class="tl-seg'+(d.n===cur?' cur':'')+'" style="background:'+p.s+';height:'+(d.n===cur?18:8)+'px" onclick="pickDay('+d.n+')" title="Día '+d.n+': '+d.title+'"></div>';
+  });
+  return h+'</div>';
+}
+
+function renderDay(){
+  var d=DAYS.find(function(x){return x.n===selDay;});
+  var p=ph(d.n);
+  var h='<div class="fade">'+tl(d.n);
+  h+='<div class="day-head">'+ptag(p)+'<div class="day-title">'+(d.hoy?'★ Día ':'Día ')+d.n+' — '+d.title+'</div><div class="day-meta">'+d.date+(d.hoy?' &nbsp;·&nbsp; <strong>HOY</strong>':'')+'</div></div>';
+  h+='<div class="day-intro" style="border-left-color:'+p.s+'">'+d.intro+'</div>';
+  h+='<div class="mgrid">';
+  d.members.forEach(function(mem,i){
+    var m=M[i];
+    h+='<div class="mcard"><div class="mc-head"><div class="mc-av" style="background:'+m.bg+';color:'+m.hex+'">'+m.lbl+'</div><div><div class="mc-name" style="color:'+m.hex+'">'+m.name+'</div><div class="mc-role">'+m.role+'</div></div></div><div class="mc-body"><ul class="task-list">'+mem.tasks.map(function(t){return '<li class="task-item"><div class="t-ico" style="border-color:'+m.hex+'"></div><div class="t-txt">'+t+'</div></li>';}).join('')+'</ul><div class="deliv"><div class="del-lbl" style="color:'+m.hex+'">Entregable del día</div><div class="del-txt">'+mem.deliverable+'</div></div></div></div>';
+  });
+  h+='</div></div>';
+  document.getElementById('main').innerHTML=h;
+}
+
+function renderMember(){
+  var mi=M.findIndex(function(x){return x.id===selMember;});
+  var m=M[mi];
+  var h='<div class="fade">'+tl(null);
+  h+='<div class="mv-head"><div class="mv-av" style="background:'+m.bg+';color:'+m.hex+'">'+m.lbl+'</div><div><div class="mv-name" style="color:'+m.hex+'">'+m.name+'</div><div class="mv-sub">'+m.role+'</div></div></div>';
+  DAYS.forEach(function(d){
+    var p=ph(d.n);
+    var mem=d.members[mi];
+    h+='<div class="day-row"><div class="dr-head" onclick="toggleRow(this)"><div class="dr-dn" style="background:'+p.b+';color:'+p.t+'">'+d.n+'</div><div class="dr-info"><div class="dr-title">'+d.title+(d.hoy?' <strong>· HOY</strong>':'')+'</div><div class="dr-date">'+d.date+'</div></div><div class="dr-ph">'+ptag(p)+'</div><svg class="dr-arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 8 10 13 15 8"/></svg></div><div class="dr-body"><ul class="task-list" style="margin-bottom:10px">'+mem.tasks.map(function(t){return '<li class="task-item"><div class="t-ico" style="border-color:'+m.hex+'"></div><div class="t-txt">'+t+'</div></li>';}).join('')+'</ul><div class="deliv"><div class="del-lbl" style="color:'+m.hex+'">Entregable del día</div><div class="del-txt">'+mem.deliverable+'</div></div></div></div>';
+  });
+  h+='</div>';
+  document.getElementById('main').innerHTML=h;
+  var heads=document.querySelectorAll('.dr-head');
+  if(heads.length>0){toggleRow(heads[0]);}
+}
+
+function toggleRow(hdr){
+  var body=hdr.nextElementSibling;
+  var arrow=hdr.querySelector('.dr-arrow');
+  var open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  arrow.classList.toggle('open',!open);
+}
+
+window.pickDay=function(n){
+  selDay=n;
+  selMember=null;
+  buildNav();
+  buildMF();
+  renderDay();
+  document.getElementById('main').scrollTo(0,0);
+};
+
+window.pickMember=function(id){
+  selMember=id;
+  if(!id){buildNav();buildMF();renderDay();return;}
+  buildNav();
+  buildMF();
+  renderMember();
+  document.getElementById('main').scrollTo(0,0);
+};
+
+buildNav();
+buildMF();
+renderDay();
+</script>
+</body>
+</html>
